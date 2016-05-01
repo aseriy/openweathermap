@@ -15,11 +15,17 @@
 package openweathermap
 
 import (
-	"os"
 	"log"
+	"os"
 	"reflect"
 	"testing"
 )
+
+// currentWeather holds the query and response
+type currentWeather struct {
+	query   string
+	weather CurrentWeatherData
+}
 
 // TestValidLanguageCode will verify that the language code passed in is indeed
 // a valid one for use with the API
@@ -57,60 +63,51 @@ func TestNewCurrent(t *testing.T) {
 			t.Errorf("unusable data unit - %s", d)
 		}
 	}
-
-	_, err := NewCurrent("Philadelphia", "en")
-	if err == nil {
-		t.Error("created instance when it shouldn't have")
-	}
 }
 
-type current_weather struct {
-	query		string
-	weather		CurrentWeatherData
-}
-// TestCurrentByName will verify that current data can be retrieved for a given
+// TestCurrentByName will verify that current data can be retrieved for a give
 // location by name
 func TestCurrentByName(t *testing.T) {
 	t.Parallel()
 
-	testCities := []current_weather {
+	testCities := []currentWeather{
 		{
-			query:		"Philadelphia",
-			weather:	CurrentWeatherData {
-				ID:		4560349,
-				Name:	"Philadelphia",
-				Main: Main {
-					Temp:	35.6,
+			query: "Philadelphia",
+			weather: CurrentWeatherData{
+				ID:   4560349,
+				Name: "Philadelphia",
+				Main: Main{
+					Temp: 35.6,
 				},
 			},
 		},
 		{
-			query:		"Newark",
-			weather:	CurrentWeatherData {
-				ID:		5101798,
-				Name:	"Newark",
-				Main: Main {
-					Temp:	36.36,
+			query: "Newark",
+			weather: CurrentWeatherData{
+				ID:   5101798,
+				Name: "Newark",
+				Main: Main{
+					Temp: 36.36,
 				},
 			},
 		},
 		{
-			query:		"Helena",
-			weather:	CurrentWeatherData {
-				ID:		5656882,
-				Name:	"Helena",
-				Main: Main {
-					Temp:	42.8,
+			query: "Helena",
+			weather: CurrentWeatherData{
+				ID:   5656882,
+				Name: "Helena",
+				Main: Main{
+					Temp: 42.8,
 				},
 			},
 		},
 		{
-			query:		"San Diego, CA",
-			weather:	CurrentWeatherData {
-				ID:		5391811,
-				Name:	"San Diego",
-				Main: Main {
-					Temp:	56.53,
+			query: "San Diego, CA",
+			weather: CurrentWeatherData{
+				ID:   5391811,
+				Name: "San Diego",
+				Main: Main{
+					Temp: 56.53,
 				},
 			},
 		},
@@ -126,7 +123,7 @@ func TestCurrentByName(t *testing.T) {
 	for _, city := range testCities {
 		c.CurrentByName(city.query)
 
-		if (os.Getenv("RTCP_HOST") != "") {
+		if os.Getenv("RTCP_HOST") != "" {
 			if c.ID != city.weather.ID {
 				t.Errorf("Excpect CityID %ld, got %ld", city.weather.ID, c.ID)
 			}
@@ -144,7 +141,6 @@ func TestCurrentByName(t *testing.T) {
 			t.Log("received expected failure for bad city by name")
 		}
 	}
-
 }
 
 // TestCurrentByCoordinates will verify that current data can be retrieved for a
